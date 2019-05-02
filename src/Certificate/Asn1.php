@@ -27,7 +27,48 @@ class Asn1
      */
     public static function getCNPJ($publickeyUnformated)
     {
-        return self::getOIDdata('2.16.76.1.3.3', $publickeyUnformated);
+        //CNPJ
+        //OID = 2.16.76.1.3.3
+        $cnpj = self::getOIDdata('2.16.76.1.3.3', $publickeyUnformated);
+        if (empty($cnpj)) {
+            return "Não existe CNPJ neste certificado.";
+        }
+        return $cnpj;
+    }
+
+    /**
+     * CPF
+     * OID = 2.16.76.1.3.1 e
+     * conteúdo = nas primeiras 8 (oito) posições,
+     *  a data de nascimento do titular,
+     * no formato ddmmaaaa;
+     * nas 11 (onze) posições subseqüentes,
+     * o Cadastro de Pessoa Física (CPF) do titular;
+     * nas 11 (onze) posições subseqüentes,
+     * o número de inscrição do titular no PIS/PASEP;
+     * nas 11 (onze) posições subseqüentes,
+     * o número do Registro Geral - RG do titular;
+     * nas 6 (seis) posições subseqüentes,
+     * as siglas do órgão expedidor do RG
+     * e respectiva UF.
+     */
+    /**
+     * Get CPF owner number from digital certificate
+     * (more specifically, from public key)
+     * @param string $publickeyUnformated
+     * @return string CPF
+     */
+    public static function getCPF($publickeyUnformated)
+    {
+        //CPF
+        //OID = 2.16.76.1.3.1
+        $resp = self::getOIDdata('2.16.76.1.3.1', $publickeyUnformated);
+        if (empty($resp)) {
+            return "Não existe CPF neste certificado.";
+        }
+        $dataNascimento = substr($resp, 0, 8);
+        $cpf = substr($resp, 8, 11);
+        return $cpf;
     }
 
     /**
@@ -51,6 +92,10 @@ class Asn1
         //because there are usually only one OID of each type in
         //the certificate, but can be more. In this case only
         //first occurency will be returned.
+        if (!strpos($certder, $oidMarker)) {
+            //OID not found return empty
+            return '';
+        }
         $partes = explode($oidMarker, $certder);
         //if count($partes) > 1 so OID was located
         $tot = count($partes);

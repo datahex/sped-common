@@ -141,7 +141,16 @@ class Certificate implements SignatureInterface, VerificationInterface
      */
     public function getCnpj()
     {
-        return $this->publicKey->cnpj;
+        return $this->publicKey->cnpj();
+    }
+
+    /**
+     * Gets CPF by OID '2.16.76.1.3.1' from ASN.1 certificate struture
+     * @return string
+     */
+    public function getCpf()
+    {
+        return $this->publicKey->cpf();
     }
 
     /**
